@@ -24,7 +24,7 @@ export default function BottomNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-zinc-200 bg-white/90 backdrop-blur dark:border-zinc-800 dark:bg-zinc-950/80">
+    <nav className="fixed inset-x-0 bottom-0 z-50 md:hidden border-t border-zinc-200 bg-white/90 backdrop-blur dark:border-zinc-800 dark:bg-zinc-950/80">
       <div className="mx-auto grid h-16 w-full max-w-3xl grid-cols-5 px-2">
         {items.map((item) => {
           const active = isActive(pathname, item.href);
