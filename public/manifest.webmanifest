@@ -1,5 +1,6 @@
 {
-    "name": "Coin Empire Agency",
+  "id": "/",
+  "name": "Coin Empire Agency",
   "short_name": "Coin Empire",
   "description": "Painel oficial da Coin Empire Agency",
   "start_url": "/dashboard",

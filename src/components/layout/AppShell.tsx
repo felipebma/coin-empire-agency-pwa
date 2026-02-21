@@ -12,7 +12,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         <SidebarNav />
 
         {/* content */}
-        <main className="w-full px-4 pb-24 pt-16 md:pb-8 md:pt-16 md:px-6">{children}</main>
+        <main className="w-full px-4 pb-[calc(6rem+env(safe-area-inset-bottom))] pt-[calc(4rem+env(safe-area-inset-top))] md:px-6 md:pb-8 md:pt-16">
+          {children}
+        </main>
       </div>
 
       {/* Mobile bottom nav */}

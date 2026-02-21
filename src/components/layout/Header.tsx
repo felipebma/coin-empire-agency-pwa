@@ -18,7 +18,7 @@ export default function Header() {
   const title = titleFromPath(pathname);
 
   return (
-    <header className="fixed inset-x-0 top-0 z-50 border-b border-zinc-200 bg-white/80 backdrop-blur dark:border-zinc-800 dark:bg-zinc-950/70">
+    <header className="fixed inset-x-0 top-0 z-50 border-b border-zinc-200 bg-white/80 pt-[env(safe-area-inset-top)] backdrop-blur dark:border-zinc-800 dark:bg-zinc-950/70">
       <div className="mx-auto flex h-14 w-full max-w-3xl items-center justify-between px-4 md:px-6">
         <div className="min-w-0">
           <p className="truncate text-base font-semibold">{title}</p>
