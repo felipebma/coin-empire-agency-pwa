@@ -1,9 +1,9 @@
 "use client";
 
+import UpdateToast from "@/components/pwa/UpdateToast";
 import { useEffect, useState } from "react";
 
 export default function ServiceWorkerManager() {
-  const [waitingWorker, setWaitingWorker] = useState<ServiceWorker | null>(null);
   const [showUpdatePrompt, setShowUpdatePrompt] = useState(false);
 
   useEffect(() => {
@@ -16,18 +16,34 @@ export default function ServiceWorkerManager() {
     }
 
     let isSubscribed = true;
+    let isReloading = false;
+    let updateIntervalId: number | undefined;
+    let currentRegistration: ServiceWorkerRegistration | null = null;
+    const notifiedWorkers = new WeakSet<ServiceWorker>();
+
+    const triggerAutoUpdate = (worker: ServiceWorker) => {
+      if (notifiedWorkers.has(worker)) {
+        return;
+      }
+
+      notifiedWorkers.add(worker);
+      setShowUpdatePrompt(true);
+      window.setTimeout(() => {
+        worker.postMessage({ type: "SKIP_WAITING" });
+      }, 900);
+    };
 
     const handleInstalled = (worker: ServiceWorker) => {
       if (!navigator.serviceWorker.controller || !isSubscribed) {
         return;
       }
 
-      setWaitingWorker(worker);
-      setShowUpdatePrompt(true);
+      triggerAutoUpdate(worker);
     };
 
     const registerServiceWorker = async () => {
       const registration = await navigator.serviceWorker.register("/sw.js");
+      currentRegistration = registration;
 
       if (registration.waiting) {
         handleInstalled(registration.waiting);
@@ -46,10 +62,29 @@ export default function ServiceWorkerManager() {
           }
         });
       });
+
+      updateIntervalId = window.setInterval(() => {
+        registration.update().catch(() => {
+          // atualização silenciosa
+        });
+      }, 1000 * 60 * 5);
     };
 
     const onControllerChange = () => {
+      if (isReloading) {
+        return;
+      }
+
+      isReloading = true;
       window.location.reload();
+    };
+
+    const onVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        currentRegistration?.update().catch(() => {
+          // atualização silenciosa
+        });
+      }
     };
 
     registerServiceWorker().catch(() => {
@@ -57,37 +92,22 @@ export default function ServiceWorkerManager() {
     });
 
     navigator.serviceWorker.addEventListener("controllerchange", onControllerChange);
+    document.addEventListener("visibilitychange", onVisibilityChange);
 
     return () => {
       isSubscribed = false;
       navigator.serviceWorker.removeEventListener("controllerchange", onControllerChange);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+
+      if (updateIntervalId) {
+        window.clearInterval(updateIntervalId);
+      }
     };
   }, []);
-
-  const updateApp = () => {
-    if (!waitingWorker) {
-      window.location.reload();
-      return;
-    }
-
-    waitingWorker.postMessage({ type: "SKIP_WAITING" });
-  };
 
   if (!showUpdatePrompt) {
     return null;
   }
 
-  return (
-    <div className="fixed bottom-20 left-1/2 z-60 w-[calc(100%-2rem)] max-w-md -translate-x-1/2 rounded-xl border border-zinc-200 bg-white p-3 shadow-sm dark:border-zinc-800 dark:bg-zinc-950 md:bottom-4">
-      <p className="text-sm font-semibold">Nova versão disponível</p>
-      <p className="mt-1 text-xs opacity-80">Atualize o app para carregar os últimos ajustes.</p>
-      <button
-        type="button"
-        onClick={updateApp}
-        className="mt-3 w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm font-medium hover:bg-zinc-50 dark:border-zinc-700 dark:hover:bg-zinc-900"
-      >
-        Atualizar agora
-      </button>
-    </div>
-  );
+  return <UpdateToast />;
 }
