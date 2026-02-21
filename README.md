@@ -20,6 +20,41 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## PWA / Service Worker
+
+O projeto usa `next-pwa` com:
+
+- cache de assets estáticos (`_next/static`, imagens)
+- cache de rotas principais com estratégia `NetworkFirst`
+- fallback offline em `/%7Eoffline`
+- prompt de atualização quando uma nova versão do SW é detectada
+
+### Como validar localmente (modo produção)
+
+1. Gerar build e iniciar:
+
+	```bash
+	npm run build
+	npm run start
+	```
+
+2. Abrir `http://localhost:3000/dashboard` e verificar no DevTools > Application:
+
+	- Service Worker ativo (`/sw.js`)
+	- Cache Storage populado após navegação
+
+3. Testar offline básico:
+
+	- Navegar por `dashboard`, `announcements`, `events`, `links`, `profile`
+	- Ativar Offline no DevTools (Network)
+	- Recarregar e validar conteúdo em cache ou fallback offline
+
+4. Testar atualização:
+
+	- Com a app aberta, publicar nova versão (novo build/deploy)
+	- Reabrir/recarregar a app
+	- Validar exibição do aviso "Nova versão disponível" e clique em "Atualizar agora"
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:

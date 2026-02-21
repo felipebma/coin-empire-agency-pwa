@@ -1,11 +1,12 @@
 import "./globals.css";
 import AppShell from "@/components/layout/AppShell";
+import ServiceWorkerManager from "@/components/pwa/ServiceWorkerManager";
+import type { Metadata, Viewport } from "next";
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "Coin Empire Agency",
   description: "Agency PWA",
   manifest: "/manifest.webmanifest",
-  themeColor: "#0E1A24",
   icons: {
     icon: [
       { url: "/favicon.ico?v=2", sizes: "any" },
@@ -17,11 +18,16 @@ export const metadata = {
   },
 };
 
+export const viewport: Viewport = {
+  themeColor: "#0E1A24",
+};
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="pt-BR">
       <body>
         <AppShell>{children}</AppShell>
+        <ServiceWorkerManager />
       </body>
     </html>
   );
